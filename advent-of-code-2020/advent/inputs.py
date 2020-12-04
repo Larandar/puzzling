@@ -36,7 +36,15 @@ def file_of_day(day, ext="txt"):
     return filepath
 
 
-def lines_of_day(day):
+def lines_of_day(day, split=False):
     """Yield each line (striped) from the input of the day."""
     with file_of_day(day).open() as f:
-        yield from (l.strip() for l in f.readlines())
+        lines = f.readlines()
+
+    # We only want to remove end of files to not change the input
+    lines = map(lambda l: l.strip("\r\n"), lines)
+
+    if split is not False:
+        lines = map(lambda l: l.split(split), lines)
+
+    yield from lines
