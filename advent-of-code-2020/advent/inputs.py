@@ -48,3 +48,8 @@ def lines_of_day(day, split=False):
         lines = map(lambda l: l.split(split), lines)
 
     yield from lines
+
+
+def matrix_of_day(day, mapping={}):
+    """Return a list (lines) of list (columns)."""
+    return [[mapping.get(c, c) for c in l] for l in lines_of_day(day)]
