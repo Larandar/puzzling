@@ -15,49 +15,51 @@ AOC_DAY = 5
 INPUT_FILE = inputs.file_of_day(AOC_DAY)
 
 
-def binary_space(str, posibilities, minus, plus):
-    if len(posibilities) == 0:
-        raise StopIteration
-    if len(posibilities) == 1:
-        return posibilities[0]
-    n = str[0]
-    cut = len(posibilities) // 2
-    if n == minus:
-        posibilities = posibilities[:cut]
-    else:
-        posibilities = posibilities[cut:]
-    return binary_space(str[1:], posibilities, minus, plus)
+def binary_space(space, instructions, left):
+    """Split a space using a binary space indexing."""
+    # NOTE: Yes it crash if it get a 0 length space
+    if len(space) <= 1:
+        return space[0]
+
+    cut = len(space) // 2
+    return binary_space(
+        space[:cut] if instructions[0] == left else space[cut:],
+        instructions=instructions[1:],
+        left=left,
+    )
 
 
 @attr.s(auto_attribs=True)
 class BoardingPass:
+    """Describe a boarding pass."""
+
     coded_position: str
 
-    @property
-    def row(self):
-        return binary_space(
-            self.coded_position[0:7],
-            list(sorted(range(128))),
-            "F",
-            "B",
-        )
+    row: int = attr.ib(init=False)
+    column: int = attr.ib(init=False)
 
-    @property
-    def column(self):
-        return binary_space(
-            self.coded_position[7:],
-            list(sorted(range(8))),
-            "L",
-            "R",
+    def __attrs_post_init__(self):
+        """Compute raw and column only once after the initialization."""
+        self.row = binary_space(
+            list(range(128)),
+            instructions=self.coded_position[:7],
+            left="F",
+        )
+        self.column = binary_space(
+            list(range(8)),
+            instructions=self.coded_position[7:],
+            left="L",
         )
 
     @property
     def id(self):
+        """Id of the boarding pass."""
         return self.row * 8 + self.column
 
     @classmethod
-    def from_input(day=AOC_DAY):
-        yield from map(BoardingPass, inputs.lines_of_day(AOC_DAY))
+    def from_input(cls, day=AOC_DAY):
+        """Yield boarding passes from the input of the day."""
+        yield from map(cls, inputs.lines_of_day(day))
 
 
 def part1():
@@ -75,8 +77,6 @@ def part2():
     logging.info("SOLVING DAY 5 PART 2")
 
     passes = {p.id: p for p in BoardingPass.from_input()}
-    seats = set(range(128 * 8)) - set(passes.keys())
-    pprint.pprint(seats)
 
     result = None
     for i, p in sorted(passes.items()):
