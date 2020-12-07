@@ -1,10 +1,11 @@
 """Advent of Code 2020, Day 6: {TITLE_HERE}."""
 
+from collections import defaultdict
 import logging
 import pprint
 import math
 import itertools, functools
-from typing import Dict, List
+from typing import Counter, Dict, List
 
 import attr, click
 import pandas as pd, numpy as np
@@ -15,45 +16,41 @@ import advent.inputs as inputs
 AOC_DAY = 6
 
 
-def responses(day=AOC_DAY):
-    current = set()
-    for l in inputs.lines_of_day(day):
-        if not l:
-            yield current
-            current = set()
-        else:
-            current |= set(l)
-    yield current
-
-
 @attr.s(auto_attribs=True)
 class Questionaire:
 
-    responses: List[Dict[str, bool]]
+    persons: List[Dict[str, bool]]
+
+    @property
+    def questions(self):
+        return Counter([k for q in self.responses for k in q])
 
     @classmethod
-    def from_imput(cls, day=AOC_DAY):
-        input_lines = []
-        for l in inputs.lines_of_day(day):
-            if not l:
-                yield cls._from_input(input_lines)
-                input_lines = []
-            else:
-                input_lines.append(l)
-        yield cls._from_input(input_lines)
+    def from_records(cls, records):
+        return cls(persons=[set(q) for q in records])
 
-    @classmethod
-    def _from_input(cls, lines):
-        q = set().union(*lines)
+    def questions(self):
+        return set(q for p in self.persons for q in p)
 
-        return cls([{k: k in l for k in q} for l in lines])
+    def person_answers(self, p):
+        return {q: q in self.persons[p] for q in sorted(self.questions())}
+
+    def question_answers(self, q):
+        return [q in p for p in self.persons]
+
+    def consensus(self):
+        return self.persons[0].intersection(*self.persons[1:])
 
 
 def part1():
     """Solution for part 1 of day 6."""
     logging.info("SOLVING DAY 6 PART 1")
 
-    result = sum(map(len, responses()))
+    result = (
+        inputs.records_of_day(AOC_DAY, multiline=True)
+        .map(Questionaire.from_records)
+        .sum(lambda q: len(q.questions()))
+    )
 
     click.echo(click.style("RESULT >> ", fg="green") + pprint.pformat(result))
     assert result == 6437  # Valid result for my input
@@ -62,14 +59,12 @@ def part1():
 def part2():
     """Solution for part 2 of day 6."""
     logging.info("SOLVING DAY 6 PART 2")
-    questionaires = Questionaire.from_imput()
-    groups = [
-        [set(k for k, v in q0.items() if v) for q0 in q.responses]
-        for q in questionaires
-    ]
-    all_yes = [qs[0].intersection(*qs) for qs in groups]
+    result = (
+        inputs.records_of_day(AOC_DAY, multiline=True)
+        .map(Questionaire.from_records)
+        .map(lambda s: s.consensus())
+        .sum(len)
+    )
 
-    pprint.pprint(all_yes)
-    result = sum(map(len, all_yes))
     click.echo(click.style("RESULT >> ", fg="green") + pprint.pformat(result))
-    # assert result == XXXX  # Valid result for my input
+    assert result == 3229  # Valid result for my input

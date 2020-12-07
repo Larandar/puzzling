@@ -16,15 +16,11 @@ import advent.parsing as parsing
 AOC_DAY = 4
 
 
-def passports(day=AOC_DAY):
-    passport = {}
-    for l in inputs.lines_of_day(day):
-        if not len(l):
-            yield passport
-            passport = {}
-        else:
-            passport.update(dict(map(parsing.partition_on(":"), l.split(" "))))
-    yield passport
+def passport(records):
+    p = {}
+    for r in records:
+        p |= {k: v for k, v in (parsing.split_on(":") | r.split(" "))}
+    return p
 
 
 def part1():
@@ -32,7 +28,12 @@ def part1():
     logging.info("SOLVING DAY 4 PART 1")
 
     required_fields = {"byr", "iyr", "eyr", "hgt", "hcl", "ecl", "pid"}
-    result = seq(passports()).filter_not(lambda p: required_fields - p.keys()).len()
+    result = (
+        inputs.records_of_day(AOC_DAY, multiline=True)
+        .map(passport)
+        .filter_not(lambda p: required_fields - p.keys())
+        .len()
+    )
 
     click.echo(click.style("RESULT >> ", fg="green") + pprint.pformat(result))
     assert result == 202  # Valid result for my input
@@ -59,7 +60,9 @@ def part2():
         except (KeyError, ValueError) as e:
             return False
 
-    result = seq(passports()).count(is_valid)
+    result = (
+        inputs.records_of_day(AOC_DAY, multiline=True).map(passport).count(is_valid)
+    )
 
     click.echo(click.style("RESULT >> ", fg="green") + pprint.pformat(result))
     assert result == 137  # Valid result for my input

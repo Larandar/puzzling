@@ -1,4 +1,5 @@
 """Input function for AoC."""
+from functional.pipeline import Sequence
 from advent.const import AOC_INPUT_URL, INPUT_DIR, ROOT_DIR
 import requests
 import logging
@@ -6,7 +7,7 @@ from contextlib import contextmanager
 import os
 from pathlib import Path
 
-from requests.models import cookiejar_from_dict
+from functional import pseq, seq
 
 
 def input_of_day(day):
@@ -53,3 +54,28 @@ def lines_of_day(day, split=False):
 def matrix_of_day(day, mapping={}):
     """Return a list (lines) of list (columns)."""
     return [[mapping.get(c, c) for c in l] for l in lines_of_day(day)]
+
+
+def _grouped_lines(lines):
+    """Group lines seperated by empty lines."""
+    group = []
+    for l in lines:
+        if not l and group:
+            yield group
+            group = []
+        else:
+            group.append(l)
+
+    # Don't forget to yield the last one, common error
+    if group:
+        yield group
+
+
+def records_of_day(day, multiline=False) -> Sequence:
+    """Return a sequence of records."""
+    lines = seq.open(file_of_day(day)).map(lambda l: l.strip())
+
+    if multiline:
+        lines = _grouped_lines(lines)
+
+    return pseq(lines)
