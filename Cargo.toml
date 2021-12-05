@@ -2,7 +2,52 @@
 name = "puzzling"
 version = "0.1.0"
 edition = "2021"
+authors = ["Adrien 'Larandar' DUDOUIT-EXPOSITO"]
 
-# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+[features]
+default = ["advent_2021"]
+all = ["completed", "advent_all"]
+
+# Feature to disable tests of completed tests
+completed = []
+
+# Advent of Code
+advent = []
+advent_all = ["advent_2019", "advent_2020", "advent_2021"]
+advent_2019 = ["advent"]
+advent_2020 = ["advent"]
+advent_2021 = ["advent"]
+
+
 
 [dependencies]
+# CLI and other bootstrap
+clap = {version = "*", features = ["color"]}
+config = "*"
+dirs = "*"
+reqwest = {version = "0.11.6", features = ["blocking"]}
+serde = "*"
+serde_derive = "*"
+unindent = "*"
+
+# Errorhandling and logging
+anyhow = "*"
+log = "*"
+simplelog = {version = "*", features = ["paris"]}
+
+# Data structures
+array2d = "*"
+
+# Utils
+regex = "*"
+
+# Utils for iterators
+itertools = "*"
+rayon = "*"
+
+
+[dev-dependencies]
+env_logger = "*"
+test-log = {version = "*", features = ["log", "trace"]}
+tracing = {version = "*", default-features = false}
+tracing-subscriber = {version = "*", default-features = false, features = ["env-filter", "fmt"]}
