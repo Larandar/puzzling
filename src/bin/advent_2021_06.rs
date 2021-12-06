@@ -1,5 +1,3 @@
-use std::collections::HashMap;
-
 use puzzling::advent_of_code::{daily_challenge, parsing, AdventOfCode};
 use puzzling::prelude::*;
 
@@ -7,12 +5,12 @@ use puzzling::prelude::*;
 type Input = String;
 
 /// Expected output
-type Answer = usize;
+type Answer = u128;
 
 /// Representation of a complete puzzle
 #[derive(Debug, Clone)]
 struct Puzzle {
-    fishes: Vec<usize>,
+    fish_population: [u128; 9],
 }
 
 /// Implement parsing a Puzzle struct from an input string
@@ -29,8 +27,14 @@ where
             .flat_map(|line| line.split(','))
             .map(|line| line.parse::<usize>().context("parsing fish age"))
             .collect::<Result<Vec<usize>>>()
-            // Creation using the From<Vec<Input>> input
-            .map(|fishes: Vec<usize>| -> Self { Self { fishes } })
+            .map(|fishes: Vec<usize>| -> Self {
+                let fish_population = fishes.iter().fold([0; 9], |mut pop, fish| {
+                    pop[*fish] += 1;
+                    pop
+                });
+
+                Self { fish_population }
+            })
     }
 }
 
@@ -41,46 +45,39 @@ impl From<Vec<Input>> for Puzzle {
     }
 }
 
+/// The population is better expressed as a array where each element is
+/// the number of fish and the index the age of those fishes.
+fn advance_age(population: [u128; 9]) -> [u128; 9] {
+    [
+        population[1],
+        population[2],
+        population[3],
+        population[4],
+        population[5],
+        population[6],
+        population[7] + population[0],
+        population[8],
+        population[0],
+    ]
+}
+
 impl AdventOfCode for Puzzle {
     type Input = Input;
     type Answer = Answer;
     type Puzzle = Puzzle;
 
     fn part_one(&self) -> Self::Answer {
-        (0..80)
-            .fold(self.fishes.clone(), |fishes, _| {
-                fishes
-                    .iter()
-                    .flat_map(|fish| match fish {
-                        0 => vec![6, 8],
-                        x => vec![x - 1],
-                    })
-                    .collect::<Vec<_>>()
-            })
-            .len()
+        (1..=80)
+            .fold(self.fish_population, |pop, _| advance_age(pop))
+            .iter()
+            .sum()
     }
 
     fn part_two(&self) -> Self::Answer {
-        let fishes_count: HashMap<usize, usize> = self.fishes.clone().iter().map(|v| *v).counts();
-
-        let fishes = (0..256).fold(fishes_count, |fishes, _| {
-            let fishes = fishes
-                .iter()
-                .flat_map(|(fish_age, count)| match fish_age {
-                    0 => vec![(6, 1 * count), (8, 1 * count)],
-                    _ => vec![(fish_age - 1, 1 * count)],
-                })
-                .group_by(|(age, _)| *age);
-
-            let mut next_generation: HashMap<usize, usize> = HashMap::new();
-            for (age, group) in &fishes {
-                let total: usize = group.map(|(_, count)| count).sum();
-                next_generation.insert(age, next_generation.get(&age).unwrap_or(&0) + total);
-            }
-
-            next_generation
-        });
-        fishes.iter().map(|(_, count)| count).sum()
+        (1..=256)
+            .fold(self.fish_population, |pop, _| advance_age(pop))
+            .iter()
+            .sum()
     }
 }
 
