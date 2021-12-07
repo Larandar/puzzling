@@ -5,44 +5,15 @@
   // used to trigger the snippet and the body will be expanded and inserted. Possible variables are:
   // $1, $2 for tab stops, $0 for the final cursor position, and ${1:label}, ${2:another} for placeholders.
   // Placeholders with the same ids are connected.
-  // Example:
-  // "Print to console": {
-  // 	"scope": "javascript,typescript",
-  // 	"prefix": "log",
-  // 	"body": [
-  // 		"console.log('$1');",
-  // 		"$2"
-  // 	],
-  // 	"description": "Log output to console"
-  // }
-  "Simple Test Case": {
+  "Test Case": {
     "scope": "rust",
     "prefix": "test",
     "body": [
-      "/// Solver PART ${1/(.*)/${1:/upcase}/}",
-      "/// Test Case: ${2/(.*)/${1:/upcase}/}_${3}",
+      "",
+      "/// Solver PART ${1|one,two|}",
+      "/// Test Case: ${2|sample,edge_case,error|}_${3:name}",
       "#[test]",
-      "fn part_${1|one,two|}_sample_${2:name}() {",
-      "",
-      "    let puzzle: Puzzle = r#\"${3:input}\"#",
-      "    .parse()",
-      "    .expect(\"failed to parse input string\");",
-      "",
-      "    assert_eq!(puzzle.part_${1}(), ${5:0});",
-      "}",
-      "",
-      "$0"
-    ],
-    "description": "Add a simple, one line input, test case for a solver"
-  },
-  "Complete Test Case": {
-    "scope": "rust",
-    "prefix": "test",
-    "body": [
-      "/// Solver PART ${1/(.*)/${1:/upcase}/}",
-      "/// Test Case: ${2/(.*)/${1:/upcase}/}_${3}",
-      "#[test]",
-      "fn part_${1|one,two|}_${2|sample,edge_case,error|}_${3:name}() {",
+      "fn part_${1}_${2}_${3}() {",
       "",
       "    let puzzle: Puzzle = r#\"",
       "        ${4:input}",
@@ -55,6 +26,6 @@
       "",
       "$0"
     ],
-    "description": "Add a multiline test case for a solver"
+    "description": "Add test case for a solver"
   },
 }
