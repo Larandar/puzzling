@@ -18,44 +18,35 @@ struct Puzzle {
 }
 
 /// Implement parsing a Puzzle struct from an input string
-impl FromStr for Puzzle
-where
-    Puzzle: AdventOfCode,
-{
+impl FromStr for Puzzle {
     type Err = Error;
 
     fn from_str(s: &str) -> Result<Self> {
         // Standard parsing of input
-        parsing::lines_of_inputs::<Puzzle>(s)
-            .map(|lines| {
-                lines
-                    .iter()
-                    .map(|line| line.split_once("|").unwrap())
-                    .map(|(left, right)| (left.to_string(), right.to_string()))
-                    .map(|(left, right)| {
-                        Instruction(
-                            left.trim()
-                                .split_terminator(" ")
-                                .map(|s| s.chars().sorted().join("").to_string())
-                                .collect_vec(),
-                            right
-                                .trim()
-                                .split_terminator(" ")
-                                .map(|s| s.chars().sorted().join("").to_string())
-                                .collect_vec(),
-                        )
-                    })
-                    .collect_vec()
-            })
+        parsing::lines::<Input>(s)
             // Creation using the From<Vec<Input>> input
-            .map(|lines: Vec<Instruction>| -> Self { Self { lines } })
+            .map(|lines: Vec<Input>| -> Self { lines.into() })
     }
 }
 
 /// Collect a Vec<Input> input a structured Puzzle
 impl From<Vec<Input>> for Puzzle {
-    fn from(_: Vec<Input>) -> Self {
-        todo!()
+    fn from(lines: Vec<Input>) -> Self {
+        let into_instructions = |s: String| -> Vec<String> {
+            s.trim()
+                .split_terminator(" ")
+                .map(|s| s.chars().sorted().join("").to_string())
+                .collect_vec()
+        };
+
+        Self {
+            lines: lines
+                .iter()
+                .map(|line| line.split_once("|").unwrap())
+                .map(|(left, right)| (left.to_string(), right.to_string()))
+                .map(|(left, right)| Instruction(into_instructions(left), into_instructions(right)))
+                .collect_vec(),
+        }
     }
 }
 

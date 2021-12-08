@@ -62,15 +62,12 @@ impl Bingo {
 /// Implement parsing a Puzzle struct from an input string
 ///
 /// TODO(macro): Add derive macro for standard implementation of FromStr
-impl FromStr for Puzzle
-where
-    Puzzle: AdventOfCode,
-{
+impl FromStr for Puzzle {
     type Err = Error;
 
     fn from_str(s: &str) -> Result<Self> {
         // Standard parsing of input
-        parsing::lines_of_inputs::<Puzzle>(s)
+        parsing::lines::<Input>(s)
             // Creation using the From<Vec<Input>> input
             .map(|lines: Vec<Input>| -> Self { lines.into() })
     }
@@ -79,37 +76,31 @@ where
 /// Collect a Vec<Input> input a structured Puzzle
 impl From<Vec<Input>> for Puzzle {
     fn from(input: Vec<Input>) -> Self {
+        let mut input = input.into_iter();
+
         let balls = input
-            .first()
+            .next()
             .unwrap()
             .split(",")
             .map(|n| n.parse::<usize>().unwrap())
             .collect_vec();
-        let mut board_id = 0;
-        let boards_sections = input.iter().skip(2).group_by(|v| {
-            if **v == "".to_string() {
-                board_id += 1
-            }
-            board_id
-        });
 
-        let whitespace: regex::Regex = regex::Regex::new(r"\s+").unwrap();
+        let boards_sections = parsing::sections(input.skip(1).collect());
+
         let boards = boards_sections
             .into_iter()
-            .map(|(_, section)| {
-                section
-                    .filter(|l| **l != "".to_string())
-                    .map(|v| v.clone())
+            .map(|board| {
+                board
+                    .iter()
                     .map(|l| {
-                        whitespace
-                            .split(l.as_str())
-                            .filter(|l| **l != "".to_string())
+                        parsing::eager_split(l.clone())
+                            .iter()
                             .map(|n| n.parse::<usize>().unwrap())
                             .collect()
                     })
-                    .collect::<Vec<Vec<usize>>>()
+                    .collect()
             })
-            .map(|board| -> [[Option<usize>; 5]; 5] {
+            .map(|board: Vec<Vec<usize>>| -> [[Option<usize>; 5]; 5] {
                 board
                     .iter()
                     .map(|l| -> [Option<usize>; 5] {
@@ -211,13 +202,13 @@ mod tests {
                 7,4,9,5,11,17,23,2,0,14,21,24,10,16,13,6,15,25,12,22,18,20,8,19,3,26,1
 
                 22 13 17 11  0
-                8  2 23  4 24
+                 8  2 23  4 24
                 21  9 14 16  7
-                6 10  3 18  5
-                1 12 20 15 19
+                 6 10  3 18  5
+                 1 12 20 15 19
 
-                3 15  0  2 22
-                9 18 13 17  5
+                 3 15  0  2 22
+                 9 18 13 17  5
                 19  8  7 25 23
                 20 11 10 24  4
                 14 21 16 12  6
@@ -226,7 +217,7 @@ mod tests {
                 10 16 15  9 19
                 18  8 23 26 20
                 22 11 13  6  5
-                2  0 12  3  7
+                 2  0 12  3  7
             "#
             .parse()
             .expect("failed to parse input string");
@@ -246,13 +237,13 @@ mod tests {
                 7,4,9,5,11,17,23,2,0,14,21,24,10,16,13,6,15,25,12,22,18,20,8,19,3,26,1
 
                 22 13 17 11  0
-                8  2 23  4 24
+                 8  2 23  4 24
                 21  9 14 16  7
-                6 10  3 18  5
-                1 12 20 15 19
+                 6 10  3 18  5
+                 1 12 20 15 19
 
-                3 15  0  2 22
-                9 18 13 17  5
+                 3 15  0  2 22
+                 9 18 13 17  5
                 19  8  7 25 23
                 20 11 10 24  4
                 14 21 16 12  6
@@ -261,7 +252,7 @@ mod tests {
                 10 16 15  9 19
                 18  8 23 26 20
                 22 11 13  6  5
-                2  0 12  3  7
+                 2  0 12  3  7
             "#
             .parse()
             .expect("failed to parse input string");

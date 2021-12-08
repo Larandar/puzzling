@@ -18,8 +18,6 @@ advent_2019 = ["advent"]
 advent_2020 = ["advent"]
 advent_2021 = ["advent"]
 
-
-
 [dependencies]
 # CLI and other bootstrap
 clap = {version = "*", features = ["color"]}
@@ -44,6 +42,7 @@ regex = "*"
 # Utils for iterators
 itertools = "*"
 rayon = "*"
+bimap = "0.6.1"
 
 
 [dev-dependencies]

@@ -1,4 +1,4 @@
-#![feature(once_cell)]
+#![feature(never_type, once_cell)]
 
 // Global exports
 pub mod config;

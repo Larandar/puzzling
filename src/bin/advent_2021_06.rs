@@ -14,34 +14,39 @@ struct Puzzle {
 }
 
 /// Implement parsing a Puzzle struct from an input string
-impl FromStr for Puzzle
-where
-    Puzzle: AdventOfCode,
-{
+impl FromStr for Puzzle {
     type Err = Error;
 
     fn from_str(s: &str) -> Result<Self> {
         // Standard parsing of input
-        parsing::lines_of_inputs::<Puzzle>(s)?
-            .iter()
-            .flat_map(|line| line.split(','))
-            .map(|line| line.parse::<usize>().context("parsing fish age"))
-            .collect::<Result<Vec<usize>>>()
-            .map(|fishes: Vec<usize>| -> Self {
-                let fish_population = fishes.iter().fold([0; 9], |mut pop, fish| {
-                    pop[*fish] += 1;
-                    pop
-                });
-
-                Self { fish_population }
-            })
+        parsing::lines::<Input>(s)
+            // Creation using the From<Vec<Input>> input
+            .map(|lines: Vec<Input>| -> Self { lines.into() })
     }
 }
 
 /// Collect a Vec<Input> input a structured Puzzle
 impl From<Vec<Input>> for Puzzle {
     fn from(input: Vec<Input>) -> Self {
-        panic!("{:?}", input);
+        Self {
+            fish_population: input
+                .iter()
+                .flat_map(|line| line.split(','))
+                .map(|line| line.parse::<usize>().context("parsing fish age").unwrap())
+                .fold([0; 9], |acc, fish| {
+                    acc.iter()
+                        .enumerate()
+                        .map(|(age, t)| -> u128 {
+                            match fish == age {
+                                true => *t + 1,
+                                false => *t,
+                            }
+                        })
+                        .collect_vec()
+                        .try_into()
+                        .unwrap()
+                }),
+        }
     }
 }
 

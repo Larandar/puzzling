@@ -39,15 +39,12 @@ struct Puzzle {
 /// Implement parsing a Puzzle struct from an input string
 ///
 /// TODO(macro): Add derive macro for standard implementation of FromStr
-impl FromStr for Puzzle
-where
-    Puzzle: AdventOfCode,
-{
+impl FromStr for Puzzle {
     type Err = Error;
 
     fn from_str(s: &str) -> Result<Self> {
         // Standard parsing of input
-        parsing::lines_of_inputs::<Puzzle>(s)
+        parsing::lines::<Input>(s)
             // Creation using the From<Vec<Input>> input
             .map(|lines: Vec<Input>| -> Self { lines.into() })
     }

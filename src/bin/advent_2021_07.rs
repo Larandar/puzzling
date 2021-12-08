@@ -14,26 +14,31 @@ struct Puzzle {
 }
 
 /// Implement parsing a Puzzle struct from an input string
-impl FromStr for Puzzle
-where
-    Puzzle: AdventOfCode,
-{
+impl FromStr for Puzzle {
     type Err = Error;
 
     fn from_str(s: &str) -> Result<Self> {
-        parsing::lines_of_inputs::<Puzzle>(s)?
-            .iter()
-            .flat_map(|line| line.split(','))
-            .map(|line| line.parse::<usize>().context("parsing fish age"))
-            .collect::<Result<Vec<usize>>>()
-            .map(|crabs: Vec<usize>| -> Self { Self { crabs } })
+        // Standard parsing of input
+        parsing::lines::<Input>(s)
+            // Creation using the From<Vec<Input>> input
+            .map(|lines: Vec<Input>| -> Self { lines.into() })
     }
 }
 
 /// Collect a Vec<Input> input a structured Puzzle
 impl From<Vec<Input>> for Puzzle {
-    fn from(_input: Vec<Input>) -> Self {
-        todo!()
+    fn from(input: Vec<Input>) -> Self {
+        Self {
+            crabs: input
+                .iter()
+                .flat_map(|line| line.split(','))
+                .map(|line| {
+                    line.parse::<usize>()
+                        .context("parsing crab heights")
+                        .unwrap()
+                })
+                .collect(),
+        }
     }
 }
 
@@ -65,8 +70,8 @@ impl AdventOfCode for Puzzle {
 
     fn part_two(&self) -> Self::Answer {
         let (min, max) = match self.crabs.iter().minmax() {
-            itertools::MinMaxResult::NoElements => todo!(),
-            itertools::MinMaxResult::OneElement(a) => (0, *a),
+            itertools::MinMaxResult::NoElements => unreachable!(),
+            itertools::MinMaxResult::OneElement(_) => unreachable!(),
             itertools::MinMaxResult::MinMax(a, b) => (*a, *b),
         };
 

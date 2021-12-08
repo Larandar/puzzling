@@ -1,8 +1,9 @@
+#![allow(dead_code, unused_variables)]
 use puzzling::advent_of_code::{daily_challenge, parsing, AdventOfCode};
 use puzzling::prelude::*;
 
 /// Input type for each line
-type Input = usize;
+type Input = String;
 
 /// Expected output
 type Answer = usize;
@@ -14,15 +15,12 @@ struct Puzzle {
 }
 
 /// Implement parsing a Puzzle struct from an input string
-impl FromStr for Puzzle
-where
-    Puzzle: AdventOfCode,
-{
+impl FromStr for Puzzle {
     type Err = Error;
 
     fn from_str(s: &str) -> Result<Self> {
         // Standard parsing of input
-        parsing::lines_of_inputs::<Puzzle>(s)
+        parsing::lines::<Input>(s)
             // Creation using the From<Vec<Input>> input
             .map(|lines: Vec<Input>| -> Self { lines.into() })
     }
@@ -41,10 +39,16 @@ impl AdventOfCode for Puzzle {
     type Puzzle = Puzzle;
 
     fn part_one(&self) -> Self::Answer {
+        #[cfg(test)]
+        debug!("Puzzle: {:?}", self);
+
         todo!()
     }
 
     fn part_two(&self) -> Self::Answer {
+        #[cfg(test)]
+        debug!("Puzzle: {:?}", self);
+
         todo!()
     }
 }
