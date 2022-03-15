@@ -182,7 +182,7 @@ fn main() {
 
 #[cfg(test)]
 #[cfg(feature = "advent_2021")]
-// #[cfg(feature = "completed")]
+#[cfg(feature = "completed")]
 mod tests {
 
     #[allow(unused_imports)]
@@ -196,7 +196,6 @@ mod tests {
         /// Solver PART one
         /// Test Case: sample_1
         #[test]
-        #[ignore]
         fn part_one_sample_1() {
             let puzzle: Puzzle = r#"
             6,10

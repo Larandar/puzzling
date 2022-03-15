@@ -199,7 +199,7 @@ fn main() {
 
 #[cfg(test)]
 #[cfg(feature = "advent_2021")]
-// #[cfg(feature = "completed")]
+#[cfg(feature = "completed")]
 mod tests {
 
     #[allow(unused_imports)]
