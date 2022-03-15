@@ -5,6 +5,7 @@ function advent -a year -a day
     export RUST_LOG=debug
     set --local advent_bin (string join _ advent $year $day)
     cargo run --bin advent -- prepare $year $day
+    open https://adventofcode.com/$year/day/$day
     cargo watch --clear --exec "check --quiet" --exec "test --bin $advent_bin" --exec "run --quiet --bin $advent_bin"
 end
 
