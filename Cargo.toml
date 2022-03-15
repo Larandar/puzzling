@@ -18,7 +18,7 @@ advent_2021 = ["advent"]
 
 [dependencies]
 # CLI and other bootstrap
-clap = { version = "*", features = ["color"] }
+clap = { version = "<3", features = ["color"] }
 config = "*"
 dirs = "*"
 indicatif = "*"
