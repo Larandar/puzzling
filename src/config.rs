@@ -69,24 +69,22 @@ impl Settings {
     }
 
     fn load() -> Result<Self> {
-        let mut s = Config::default();
-
-        // Start off by merging in the "default" configuration file
-        s.merge(
-            File::from(
-                dirs::home_dir()
-                    .context("Locating home directory")?
-                    .join(".config")
-                    .join("puzzling.toml"),
+        let config = Config::builder()
+            // Start off by merging in the "default" configuration file
+            .add_source(
+                File::from(
+                    dirs::home_dir()
+                        .context("Locating home directory")?
+                        .join(".config")
+                        .join("puzzling.toml"),
+                )
+                .required(false),
             )
-            .required(false),
-        )
-        .context("Loading home config file")?;
-
-        // Then merge in the "workspace" configuration file
-        s.merge(File::with_name("puzzling"))
+            // Then merge in the "workspace" configuration file
+            .add_source(File::with_name("puzzling"))
+            .build()
             .context("Loading workspace config file (puzzling.toml)")?;
 
-        s.try_into().context("Deserializing settings")
+        config.try_deserialize().context("Deserializing settings")
     }
 }
